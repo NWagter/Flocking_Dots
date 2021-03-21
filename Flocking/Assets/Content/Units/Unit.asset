@@ -9,10 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0b11e87314fa864f8fc7e8f470ec9a8, type: 3}
-  m_Name: Formation
+  m_Script: {fileID: 11500000, guid: 66f5cc99d8f6a2b489350ca6d7edb5a5, type: 3}
+  m_Name: Unit
   m_EditorClassIdentifier: 
-  _formationName: Test formation
-  _formationWidth: 5
-  _formationHeight: 5
-  _unit: {fileID: 11400000, guid: 2b1c4525fd5395e47bdbb05f663ba717, type: 2}
+  unitObject: {fileID: 4546309175488908058, guid: e507e5e4f43004d4ab303c0e14270122, type: 3}

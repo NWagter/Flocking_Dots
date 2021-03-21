@@ -1,4 +1,4 @@
-public class UnitLibrary : ContentLibrary<FormationSO>
+public class UnitLibrary : ContentLibrary<UnitSO>
 {
 
 }

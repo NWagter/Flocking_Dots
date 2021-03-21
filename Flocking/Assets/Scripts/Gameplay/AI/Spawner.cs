@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 public class Spawner : MonoBehaviour
@@ -37,7 +38,7 @@ public class Spawner : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(0))
         {
             RaycastHit hit;
             Ray ray = cam.ScreenPointToRay(Input.mousePosition);
@@ -79,19 +80,54 @@ public class SpawnerSystem : SystemBase
 
         Entities.ForEach((Entity e, ref SpawnComponent sComp) =>
         {
-            Entity newE = bcb.Instantiate(formationEntity);
-            var formation = FormationLibrary.GetInstance().GetContent<FormationSO>(sComp.formation);
+            Entity leader = bcb.Instantiate(formationEntity);
+            var formation = FormationLibrary.GetInstance().GetContent<FormationSO>(sComp.formation);         
 
-            
-
-            bcb.SetComponent<Translation>(newE, new Translation()
+            bcb.SetComponent<Translation>(leader, new Translation()
             {
                 Value = sComp.spawnLocation
             });
+
+            bcb.AddComponent(leader, new FlockManagerComponent());
+            DynamicBuffer<FlockAgentElement> buffer = bcb.AddBuffer<FlockAgentElement>(leader);
+
+            float xWidth = (float)formation.formationWidth / 2;
+            float yHeight = (float)formation.formationHeight / 2;
+
+            for (float x = -xWidth; x < xWidth; x++)
+            {
+                for (float y = -yHeight; y < yHeight; y++)
+                {
+                    Entity ent = SpawnUnit(sComp.spawnLocation + new float3(x * 2, 0, y * 2), formation.unit, bcb);
+
+                    bcb.AddComponent(ent, new FlockAgentComponent()
+                    {
+                        flockManager = leader
+                    });
+
+                    buffer.Add(new FlockAgentElement()
+                    {
+                        agent = ent
+                    });
+                }
+            }
+
 
             bcb.DestroyEntity(e);
         }).WithoutBurst().Run();
 
         beginCBS.AddJobHandleForProducer(this.Dependency);
+    }
+
+    public static Entity SpawnUnit(float3 location, UnitSO unit, EntityCommandBuffer bcb)
+    {
+        Entity ent = bcb.Instantiate(unit.entityPrefab);
+
+        bcb.SetComponent(ent, new Translation()
+        {
+            Value = location
+        }); 
+
+        return ent;
     }
 }
