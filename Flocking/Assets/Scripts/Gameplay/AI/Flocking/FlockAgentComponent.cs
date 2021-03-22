@@ -7,37 +7,57 @@ public struct FlockAgentComponent : IComponentData
     public Entity flockManager;
 
     public float3 currentLocation;
+    public float3 fowardDir;
 
     public float3 velocity;
     public float speed;
 
-    public float3 ComputeAlignment(NativeList<FlockAgentComponent> agents)
+    public void CalculateSpeed(NativeList<FlockAgentComponent> agents)
     {
-        int neighborCount = 0;
-        float3 v = velocity;
+        if (agents.Length <= 0)
+            return;
+
+        speed = 0;
 
         for (int i = 0; i < agents.Length; i++)
         {
             FlockAgentComponent agent = agents[i];
+            speed += agent.speed;
+        }
 
+        speed /= agents.Length;
+
+        speed = math.clamp(speed, 0.25f, 5);
+    }
+
+    public float3 ComputeAlignment(NativeList<FlockAgentComponent> agents)
+    {
+        var aligementVector = fowardDir;
+
+        if (agents.Length <= 0)
+            return aligementVector;
+
+        int neighboursInFOV = 0;
+        for (int i = 0; i < agents.Length; i++)
+        {
+            FlockAgentComponent agent = agents[i];
             if (agent.currentLocation.Equals(currentLocation))
                 continue;
 
-            if (math.distance(agent.currentLocation, currentLocation) < 5)
+            if (math.distance(agent.currentLocation, currentLocation) < 10 && IsInFOV(agent.currentLocation))
             {
-                v.x += agent.velocity.x;
-                v.z += agent.velocity.z;
-                neighborCount++;
+                neighboursInFOV++;
+                aligementVector += agent.fowardDir;
             }
         }
 
-        if (neighborCount == 0)
-            velocity = v;
+        if (neighboursInFOV <= 0)
+            return fowardDir;
 
-        v.x /= neighborCount;
-        v.y = 0;
-        v.z /= neighborCount;
-        return math.normalize(v);
+        aligementVector /= neighboursInFOV;
+        aligementVector = math.normalize(aligementVector);
+        aligementVector.y = 0;
+        return aligementVector;
 
     }
     public float3 ComputeCohesion(NativeList<FlockAgentComponent> agents)
@@ -48,11 +68,10 @@ public struct FlockAgentComponent : IComponentData
         for (int i = 0; i < agents.Length; i++)
         {
             FlockAgentComponent agent = agents[i];
-
             if (agent.currentLocation.Equals(currentLocation))
                 continue;
 
-            if (math.distance(agent.currentLocation, currentLocation) < 5)
+            if (math.distance(agent.currentLocation, currentLocation) < 5.0f && IsInFOV(agent.currentLocation))
             {
                 v.x += agent.currentLocation.x;
                 v.z += agent.currentLocation.z;
@@ -60,40 +79,50 @@ public struct FlockAgentComponent : IComponentData
             }
         }
 
-        v.x /= neighborCount;
+        if (neighborCount <= 0)
+            return float3.zero;
+
+        v /= neighborCount;
+        v -= currentLocation;
+        v = math.normalize(v);
         v.y = 0;
-        v.z /= neighborCount;
-        return math.normalize(new float3(v.x - currentLocation.x, 0, v.z - currentLocation.z));
+        return v;
 
     }
+
     public float3 ComputeSeparation(NativeList<FlockAgentComponent> agents)
     {
-        int neighborCount = 0;
-        float3 v = float3.zero;
+        var avoidanceVector = float3.zero;
 
+        if (agents.Length <= 0)
+            return avoidanceVector;
+
+        int neighboursInFOV = 0;
         for (int i = 0; i < agents.Length; i++)
         {
             FlockAgentComponent agent = agents[i];
-
             if (agent.currentLocation.Equals(currentLocation))
                 continue;
 
-            if (math.distance(agent.currentLocation, currentLocation) < 5)
+            if (math.distance(agent.currentLocation, currentLocation) < 2.5f && IsInFOV(agent.currentLocation))
             {
-                v.x += agent.currentLocation.x - currentLocation.x;
-                v.z += agent.currentLocation.z - currentLocation.z;
-                neighborCount++;
+                neighboursInFOV++;
+                avoidanceVector += (currentLocation - agent.currentLocation);
             }
         }
 
-        v.x /= neighborCount;
-        v.y = 0;
-        v.z /= neighborCount;
+        if (neighboursInFOV <= 0 || avoidanceVector.Equals(float3.zero))
+            return avoidanceVector;
 
-        v.x *= -1;
-        v.z *= -1;
-
-        return v;
+        avoidanceVector /= neighboursInFOV;
+        avoidanceVector = math.normalize(avoidanceVector);
+        avoidanceVector.y = 0;
+        return avoidanceVector;
     }
 
+
+    private bool IsInFOV(float3 location)
+    {
+        return UnityEngine.Vector3.Angle(fowardDir, location - currentLocation) <= 270;
+    }
 }

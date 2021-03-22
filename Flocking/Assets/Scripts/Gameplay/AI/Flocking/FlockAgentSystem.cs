@@ -25,12 +25,18 @@ public class FlockAgentSystem : SystemBase
             ref Rotation rot,
             ref LocalToWorld lTW) =>
         {
-            if (flockAgent.velocity.Equals(float3.zero))
-                flockAgent.velocity = lTW.Forward;
+            var forward = flockAgent.velocity;
 
+            if(forward.Equals(float3.zero))
+            {
+                forward = lTW.Forward;
+            }
+
+            rot.Value = quaternion.LookRotation(forward, lTW.Up);
+            flockAgent.fowardDir = lTW.Forward;
             flockAgent.currentLocation = trans.Value;
 
-            trans.Value += flockAgent.velocity * dT;
+            trans.Value += forward * dT;
 
         }).WithName("Flock_Agent").ScheduleParallel();
 

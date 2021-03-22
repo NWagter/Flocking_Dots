@@ -39,14 +39,16 @@ public class FlockMovementSystem : SystemBase
             {
                 Entity agent = agentBuffer[i].agent;
                 FlockAgentComponent agentComp = flockAgents[agent];
-                var alignment = agentComp.ComputeAlignment(agents);
+
+                agentComp.CalculateSpeed(agents);
+
                 var cohesion = agentComp.ComputeCohesion(agents);
-                var separation = agentComp.ComputeSeparation(agents);
+                var alignment = agentComp.ComputeAlignment(agents);
+                var seperation = agentComp.ComputeSeparation(agents);
 
-                agentComp.velocity.x += alignment.x + cohesion.x + separation.x;
-                agentComp.velocity.y = 0;
-                agentComp.velocity.z += alignment.z + cohesion.z + separation.z;
-
+                var vel = (cohesion * 0.7f) + (seperation * 1.0f) + (alignment * 0.8f);
+                vel = math.normalize(vel);
+                agentComp.velocity = vel;
 
                 ecb.SetComponent(entityInQueryIndex, agent, agentComp);
                 centroid += translations[agent].Value;
