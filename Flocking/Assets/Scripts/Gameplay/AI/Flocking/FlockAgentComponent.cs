@@ -44,7 +44,7 @@ public struct FlockAgentComponent : IComponentData
             if (agent.currentLocation.Equals(currentLocation))
                 continue;
 
-            if (math.distance(agent.currentLocation, currentLocation) < 10 && IsInFOV(agent.currentLocation))
+            if (math.distance(agent.currentLocation, currentLocation) < 3.0f && IsInFOV(agent.currentLocation))
             {
                 neighboursInFOV++;
                 aligementVector += agent.fowardDir;
@@ -71,7 +71,7 @@ public struct FlockAgentComponent : IComponentData
             if (agent.currentLocation.Equals(currentLocation))
                 continue;
 
-            if (math.distance(agent.currentLocation, currentLocation) < 5.0f && IsInFOV(agent.currentLocation))
+            if (math.distance(agent.currentLocation, currentLocation) < 2.0f && IsInFOV(agent.currentLocation))
             {
                 v.x += agent.currentLocation.x;
                 v.z += agent.currentLocation.z;
@@ -104,7 +104,7 @@ public struct FlockAgentComponent : IComponentData
             if (agent.currentLocation.Equals(currentLocation))
                 continue;
 
-            if (math.distance(agent.currentLocation, currentLocation) < 2.5f && IsInFOV(agent.currentLocation))
+            if (math.distance(agent.currentLocation, currentLocation) < 3.5f && IsInFOV(agent.currentLocation))
             {
                 neighboursInFOV++;
                 avoidanceVector += (currentLocation - agent.currentLocation);
@@ -130,6 +130,6 @@ public struct FlockAgentComponent : IComponentData
 
     private bool IsInFOV(float3 location)
     {
-        return UnityEngine.Vector3.Angle(fowardDir, location - currentLocation) <= 270;
+        return UnityEngine.Vector3.Angle(fowardDir, location - currentLocation) <= 320;
     }
 }

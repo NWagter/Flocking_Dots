@@ -90,6 +90,7 @@ public class SpawnerSystem : SystemBase
 
             bcb.AddComponent(leader, new FlockManagerComponent());
             DynamicBuffer<FlockAgentElement> buffer = bcb.AddBuffer<FlockAgentElement>(leader);
+            bcb.AddBuffer<NeighborAgentElements>(leader);
 
             float xWidth = (float)formation.formationWidth / 2;
             float yHeight = (float)formation.formationHeight / 2;

@@ -10,3 +10,7 @@ public struct FlockAgentElement : IBufferElementData
 {
     public Entity agent;
 }
+public struct NeighborAgentElements : IBufferElementData
+{
+    public Entity agent;
+}
