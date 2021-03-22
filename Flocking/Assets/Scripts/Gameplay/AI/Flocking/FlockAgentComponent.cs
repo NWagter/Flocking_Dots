@@ -27,7 +27,7 @@ public struct FlockAgentComponent : IComponentData
 
         speed /= agents.Length;
 
-        speed = math.clamp(speed, 0.25f, 5);
+        speed = math.clamp(speed, 1.5f, 10.0f);
     }
 
     public float3 ComputeAlignment(NativeList<FlockAgentComponent> agents)
@@ -120,6 +120,13 @@ public struct FlockAgentComponent : IComponentData
         return avoidanceVector;
     }
 
+    public float3 ComputeBounds(float3 centroid, float boundDistance)
+    {
+        var offsetToCenter = centroid - currentLocation;
+        
+        bool isNearCenter = (UnityEngine.Vector3.Magnitude(offsetToCenter) >= boundDistance * 0.9f);
+        return isNearCenter ? math.normalize(offsetToCenter) : float3.zero;
+    }
 
     private bool IsInFOV(float3 location)
     {

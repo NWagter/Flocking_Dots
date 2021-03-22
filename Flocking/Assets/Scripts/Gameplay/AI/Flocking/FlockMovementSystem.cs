@@ -45,8 +45,9 @@ public class FlockMovementSystem : SystemBase
                 var cohesion = agentComp.ComputeCohesion(agents);
                 var alignment = agentComp.ComputeAlignment(agents);
                 var seperation = agentComp.ComputeSeparation(agents);
+                var bounds = agentComp.ComputeBounds(flockManager.centroid, 5.0f);
 
-                var vel = (cohesion * 0.7f) + (seperation * 1.0f) + (alignment * 0.8f);
+                var vel = (cohesion * 0.7f) + (seperation * 1.0f) + (alignment * 0.8f) + (bounds * 1.0f);
                 vel = math.normalize(vel);
                 agentComp.velocity = vel;
 
@@ -54,7 +55,12 @@ public class FlockMovementSystem : SystemBase
                 centroid += translations[agent].Value;
             }
 
+
             flockManager.centroid = (centroid / agentBuffer.Length);
+
+            var trans = translations[e];
+            trans.Value = flockManager.centroid;
+            ecb.SetComponent(entityInQueryIndex, e, trans);
 
             agents.Dispose();
         }).WithName("Flock_Manager").ScheduleParallel();
