@@ -79,9 +79,11 @@ public class FlockMovementSystem : SystemBase
                 var alignment = agentComp.ComputeAlignment(agents);
                 var seperation = agentComp.ComputeSeparation(agents);
                 var bounds = agentComp.ComputeBounds(translations[e].Value, 5.0f);
+                var desired = agentComp.CompoteDesired(translations[e].Value);
 
-                var vel = (cohesion * 0.1f) + (seperation * 1.0f) + (alignment * 0.8f) + (bounds * 1.0f);
+                var vel = (cohesion * 0.2f) + (seperation * 1.0f) + (alignment * 0.8f) + (bounds * 0.6f) + (desired * 1.0f);
                 vel = math.normalize(vel);
+
                 agentComp.velocity = vel;
 
                 ecb.SetComponent(entityInQueryIndex, agent, agentComp);

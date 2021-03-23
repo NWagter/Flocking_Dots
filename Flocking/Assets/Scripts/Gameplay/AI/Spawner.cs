@@ -89,6 +89,7 @@ public class SpawnerSystem : SystemBase
             });
 
             bcb.AddComponent(leader, new FlockManagerComponent());
+            bcb.AddComponent(leader, new FormationComponent());
             DynamicBuffer<FlockAgentElement> buffer = bcb.AddBuffer<FlockAgentElement>(leader);
             bcb.AddBuffer<NeighborAgentElements>(leader);
 
@@ -103,7 +104,8 @@ public class SpawnerSystem : SystemBase
 
                     bcb.AddComponent(ent, new FlockAgentComponent()
                     {
-                        flockManager = leader
+                        flockManager = leader,
+                        desiredLocation = new float3(x * 2, 0, y * 2)
                     });
 
                     buffer.Add(new FlockAgentElement()

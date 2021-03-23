@@ -5,6 +5,7 @@ using Unity.Collections;
 public struct FlockAgentComponent : IComponentData
 {
     public Entity flockManager;
+    public float3 desiredLocation;
 
     public float3 currentLocation;
     public float3 fowardDir;
@@ -27,7 +28,7 @@ public struct FlockAgentComponent : IComponentData
 
         speed /= agents.Length;
 
-        speed = math.clamp(speed, 1.5f, 10.0f);
+        speed = math.clamp(speed, 3.0f, 7.0f);
     }
 
     public float3 ComputeAlignment(NativeList<FlockAgentComponent> agents)
@@ -118,6 +119,22 @@ public struct FlockAgentComponent : IComponentData
         avoidanceVector = math.normalize(avoidanceVector);
         avoidanceVector.y = 0;
         return avoidanceVector;
+    }
+
+    public float3 CompoteDesired(float3 formationLocation)
+    {
+        float3 desired = (formationLocation + desiredLocation);
+        float d = math.distance(desired, currentLocation);
+        if (d < 0.25f || velocity.Equals(float3.zero))
+        {
+            return float3.zero;
+        }
+
+        float3 v = (desiredLocation + formationLocation) - currentLocation;
+
+        v = v - velocity;
+        v = math.normalize(v);
+        return v;
     }
 
     public float3 ComputeBounds(float3 centroid, float boundDistance)

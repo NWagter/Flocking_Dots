@@ -27,16 +27,14 @@ public class FlockAgentSystem : SystemBase
         {
             var forward = flockAgent.velocity;
 
-            if(forward.Equals(float3.zero))
+            if(!forward.Equals(float3.zero))
             {
-                forward = lTW.Forward;
+                rot.Value = quaternion.LookRotation(forward, lTW.Up);
+                flockAgent.fowardDir = lTW.Forward;
+                flockAgent.currentLocation = trans.Value;
+
+                trans.Value += (forward * flockAgent.speed )* dT;
             }
-
-            rot.Value = quaternion.LookRotation(forward, lTW.Up);
-            flockAgent.fowardDir = lTW.Forward;
-            flockAgent.currentLocation = trans.Value;
-
-            trans.Value += forward * dT;
 
         }).WithName("Flock_Agent").ScheduleParallel();
 
