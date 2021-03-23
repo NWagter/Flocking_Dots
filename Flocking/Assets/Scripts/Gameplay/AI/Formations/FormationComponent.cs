@@ -8,5 +8,5 @@ public struct FormationComponent : IComponentData
 
 public struct MoveActionComponent : IComponentData
 {
-    public float3 newLocation;
+    public float3 m_newLocation;
 }

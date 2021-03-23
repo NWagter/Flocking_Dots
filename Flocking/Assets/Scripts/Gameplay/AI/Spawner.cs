@@ -8,32 +8,32 @@ using Unity.Transforms;
 public class Spawner : MonoBehaviour
 {
     [SerializeField]
-    private FormationSO formationSO;
+    private FormationSO m_formationSO;
     [SerializeField]
-    private GameObject formationObject;
-    private Entity formationEntity;
-    private BlobAssetStore blobAssetStore;
+    private GameObject m_formationObject;
+    private Entity m_formationEntity;
+    private BlobAssetStore m_blobAssetStore;
 
-    private EntityManager eManager;
-    private Camera cam;
+    private EntityManager m_eManager;
+    private Camera m_cam;
 
     private void Start()
     {
-        cam = Camera.main;
-        eManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        blobAssetStore = new BlobAssetStore();
+        m_cam = Camera.main;
+        m_eManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        m_blobAssetStore = new BlobAssetStore();
 
-        formationEntity = EntitiesPrefabLibrary.GetInstance().ConvertToEntity(formationObject);
+        m_formationEntity = EntitiesPrefabLibrary.GetInstance().ConvertToEntity(m_formationObject);
     
-        if(SpawnerSystem.instance != null)
+        if(SpawnerSystem.ms_instance != null)
         {
-            SpawnerSystem.instance.formationEntity = formationEntity;
+            SpawnerSystem.ms_instance.m_formationEntity = m_formationEntity;
         }
     }
 
     private void OnDestroy()
     {
-        blobAssetStore.Dispose();
+        m_blobAssetStore.Dispose();
     }
 
     private void Update()
@@ -41,15 +41,15 @@ public class Spawner : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftShift) && Input.GetMouseButtonDown(0))
         {
             RaycastHit hit;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            Ray ray = m_cam.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out hit))
             {
-                Entity e = eManager.CreateEntity();
-                eManager.AddComponentData(e, new SpawnComponent()
+                Entity e = m_eManager.CreateEntity();
+                m_eManager.AddComponentData(e, new SpawnComponent()
                 {
-                    spawnLocation = hit.point,
-                    formation = formationSO.GetId()
+                    m_spawnLocation = hit.point,
+                    m_formation = m_formationSO.GetId()
                 });
             }
         }
@@ -62,30 +62,30 @@ public class Spawner : MonoBehaviour
 
 public class SpawnerSystem : SystemBase
 {
-    public static SpawnerSystem instance;
+    public static SpawnerSystem ms_instance;
 
-    private BeginSimulationEntityCommandBufferSystem beginCBS;
-    public Entity formationEntity;
+    private BeginSimulationEntityCommandBufferSystem m_beginCBS;
+    public Entity m_formationEntity;
 
 
     protected override void OnCreate()
     {
-        instance = this;
-        beginCBS = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
+        ms_instance = this;
+        m_beginCBS = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var bcb = beginCBS.CreateCommandBuffer();
+        var bcb = m_beginCBS.CreateCommandBuffer();
 
         Entities.ForEach((Entity e, ref SpawnComponent sComp) =>
         {
-            Entity leader = bcb.Instantiate(formationEntity);
-            var formation = FormationLibrary.GetInstance().GetContent<FormationSO>(sComp.formation);         
+            Entity leader = bcb.Instantiate(m_formationEntity);
+            var formation = FormationLibrary.GetInstance().GetContent<FormationSO>(sComp.m_formation);         
 
             bcb.SetComponent<Translation>(leader, new Translation()
             {
-                Value = sComp.spawnLocation
+                Value = sComp.m_spawnLocation
             });
 
             bcb.AddComponent(leader, new FlockManagerComponent());
@@ -100,17 +100,17 @@ public class SpawnerSystem : SystemBase
             {
                 for (float y = -yHeight; y < yHeight; y++)
                 {
-                    Entity ent = SpawnUnit(sComp.spawnLocation + new float3(x * 2, 0, y * 2), formation.unit, bcb);
+                    Entity ent = SpawnUnit(sComp.m_spawnLocation + new float3(x * 2, 0, y * 2), formation.unit, bcb);
 
                     bcb.AddComponent(ent, new FlockAgentComponent()
                     {
-                        flockManager = leader,
-                        desiredLocation = new float3(x * 2, 0, y * 2)
+                        m_flockManager = leader,
+                        m_desiredLocation = new float3(x * 2, 0, y * 2)
                     });
 
                     buffer.Add(new FlockAgentElement()
                     {
-                        agent = ent
+                        m_agent = ent
                     });
                 }
             }
@@ -119,7 +119,7 @@ public class SpawnerSystem : SystemBase
             bcb.DestroyEntity(e);
         }).WithoutBurst().Run();
 
-        beginCBS.AddJobHandleForProducer(this.Dependency);
+        m_beginCBS.AddJobHandleForProducer(this.Dependency);
     }
 
     public static Entity SpawnUnit(float3 location, UnitSO unit, EntityCommandBuffer bcb)

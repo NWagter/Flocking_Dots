@@ -5,17 +5,17 @@ using Unity.Transforms;
 
 public class FlockMovementSystem : SystemBase
 {
-    private EndSimulationEntityCommandBufferSystem endCommandBuffer;
+    private EndSimulationEntityCommandBufferSystem m_endCommandBuffer;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        m_endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
 
         var translations = GetComponentDataFromEntity<Translation>(true);
         var flockAgents = GetComponentDataFromEntity<FlockAgentComponent>(false);
@@ -41,7 +41,7 @@ public class FlockMovementSystem : SystemBase
                     {
                         neighborBuffer.Add(new NeighborAgentElements()
                         {
-                            agent = buffer[j].agent
+                            m_agent = buffer[j].m_agent
                         });
                     }
                 }
@@ -64,13 +64,13 @@ public class FlockMovementSystem : SystemBase
 
             for (int i = 0; i < neighborBuffer.Length;i++)
             {
-                agents.Add(flockAgents[neighborBuffer[i].agent]);
+                agents.Add(flockAgents[neighborBuffer[i].m_agent]);
             }
 
             //Flock around the flockmanager leader 
             for (int i = 0; i < agentBuffer.Length; i++)
             {
-                Entity agent = agentBuffer[i].agent;
+                Entity agent = agentBuffer[i].m_agent;
                 FlockAgentComponent agentComp = flockAgents[agent];
 
                 agentComp.CalculateSpeed(agents);
@@ -84,20 +84,20 @@ public class FlockMovementSystem : SystemBase
                 var vel = (cohesion * 0.2f) + (seperation * 1.0f) + (alignment * 0.8f) + (bounds * 0.6f) + (desired * 1.0f);
                 vel = math.normalize(vel);
 
-                agentComp.velocity = vel;
+                agentComp.m_velocity = vel;
 
                 ecb.SetComponent(entityInQueryIndex, agent, agentComp);
                 centroid += translations[agent].Value;
             }
 
 
-            flockManager.centroid = (centroid / agentBuffer.Length);
+            flockManager.m_centroid = (centroid / agentBuffer.Length);
 
             agents.Dispose();
 
         }).WithName("Flock_Manager").ScheduleParallel();
 
 
-        endCommandBuffer.AddJobHandleForProducer(this.Dependency);
+        m_endCommandBuffer.AddJobHandleForProducer(this.Dependency);
     }
 }

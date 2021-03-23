@@ -4,17 +4,17 @@ using Unity.Transforms;
 
 public class FlockAgentSystem : SystemBase
 {
-    private EndSimulationEntityCommandBufferSystem endCommandBuffer;
+    private EndSimulationEntityCommandBufferSystem m_endCommandBuffer;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        m_endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
 
         float dT = Time.DeltaTime;
 
@@ -25,20 +25,20 @@ public class FlockAgentSystem : SystemBase
             ref Rotation rot,
             ref LocalToWorld lTW) =>
         {
-            var forward = flockAgent.velocity;
+            var forward = flockAgent.m_velocity;
 
             if(!forward.Equals(float3.zero))
             {
                 rot.Value = quaternion.LookRotation(forward, lTW.Up);
-                flockAgent.fowardDir = lTW.Forward;
-                flockAgent.currentLocation = trans.Value;
+                flockAgent.m_fowardDir = lTW.Forward;
+                flockAgent.m_currentLocation = trans.Value;
 
-                trans.Value += (forward * flockAgent.speed )* dT;
+                trans.Value += (forward * flockAgent.m_speed )* dT;
             }
 
         }).WithName("Flock_Agent").ScheduleParallel();
 
 
-        endCommandBuffer.AddJobHandleForProducer(this.Dependency);
+        m_endCommandBuffer.AddJobHandleForProducer(this.Dependency);
     }
 }

@@ -3,20 +3,20 @@ using System;
 
 public class ContentSO : ScriptableObject
 {
-    private string guid;
-    private Guid _guid;
+    private string m_guidString;
+    private Guid m_guid;
 
     public Guid GetId()
     {
-        return _guid;
+        return m_guid;
     }
 
     private void OnValidate()
     {
-        if(guid == string.Empty)
+        if(m_guidString == string.Empty)
         {
-            _guid = Guid.NewGuid();
-            guid = _guid.ToString();
+            m_guid = Guid.NewGuid();
+            m_guidString = m_guid.ToString();
         }
     }
 

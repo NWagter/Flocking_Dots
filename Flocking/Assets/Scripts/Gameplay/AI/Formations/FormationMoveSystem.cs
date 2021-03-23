@@ -5,17 +5,17 @@ using UnityEngine;
 
 public class FormationMoveSystem : SystemBase
 {
-    private EndSimulationEntityCommandBufferSystem endCommandBuffer;
+    private EndSimulationEntityCommandBufferSystem m_endCommandBuffer;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        m_endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        var ecb = endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
 
         float dt = Time.DeltaTime;
 
@@ -26,7 +26,7 @@ public class FormationMoveSystem : SystemBase
             ref Translation trans,
             in MoveActionComponent moveAction) =>
         {
-            float d = math.distance(trans.Value, moveAction.newLocation);
+            float d = math.distance(trans.Value, moveAction.m_newLocation);
 
             if(d < 0.25f)
             {
@@ -34,12 +34,12 @@ public class FormationMoveSystem : SystemBase
             }
             else
             {
-                float3 direction = moveAction.newLocation - trans.Value;
+                float3 direction = moveAction.m_newLocation - trans.Value;
                 trans.Value += (direction * 5) * dt;
             }
 
         }).ScheduleParallel();
 
-        endCommandBuffer.AddJobHandleForProducer(this.Dependency);
+        m_endCommandBuffer.AddJobHandleForProducer(this.Dependency);
     }
 }

@@ -8,14 +8,14 @@ public class EntitiesPrefabLibrary : MonoBehaviour
     #region Singleton
     public static EntitiesPrefabLibrary GetInstance()
     {
-        if (instance == null)
+        if (ms_instance == null)
         {
-            instance = FindObjectOfType<EntitiesPrefabLibrary>();
+            ms_instance = FindObjectOfType<EntitiesPrefabLibrary>();
         }
-        return instance;
+        return ms_instance;
     }
 
-    private static EntitiesPrefabLibrary instance;
+    private static EntitiesPrefabLibrary ms_instance;
     #endregion
 
     private Dictionary<Guid, Entity> m_entityPrefabs = new Dictionary<Guid, Entity>();
@@ -59,7 +59,7 @@ public class EntitiesPrefabLibrary : MonoBehaviour
 
     private void OnDestroy()
     {
-        Destroy(instance);
-        instance = null;
+        Destroy(ms_instance);
+        ms_instance = null;
     }
 }

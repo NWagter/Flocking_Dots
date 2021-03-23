@@ -5,18 +5,18 @@ using UnityEngine;
 [AlwaysUpdateSystem]
 public class PlayerControllerSystem : SystemBase
 {
-    private Camera cam; 
-    private EndSimulationEntityCommandBufferSystem endCommandBuffer;
+    private Camera m_cam; 
+    private EndSimulationEntityCommandBufferSystem m_endCommandBuffer;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        m_endCommandBuffer = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
     protected override void OnStartRunning()
     {
         base.OnStartRunning();
-        cam = Camera.main;
+        m_cam = Camera.main;
     }
 
     protected override void OnUpdate()
@@ -28,7 +28,7 @@ public class PlayerControllerSystem : SystemBase
         if (Input.GetMouseButtonDown(1))
         {
             onClick = true;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+            Ray ray = m_cam.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out hit))
             {
@@ -36,7 +36,7 @@ public class PlayerControllerSystem : SystemBase
             }
         }
 
-        var ecb = endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
+        var ecb = m_endCommandBuffer.CreateCommandBuffer().AsParallelWriter();
 
         var moveOrders = GetComponentDataFromEntity<MoveActionComponent>(true);
 
@@ -55,12 +55,12 @@ public class PlayerControllerSystem : SystemBase
             {
                 ecb.AddComponent(entityInQueryIndex, e, new MoveActionComponent()
                 {
-                    newLocation = point
+                    m_newLocation = point
                 });
             }
 
         }).ScheduleParallel();
 
-        endCommandBuffer.AddJobHandleForProducer(this.Dependency);
+        m_endCommandBuffer.AddJobHandleForProducer(this.Dependency);
     }
 }
