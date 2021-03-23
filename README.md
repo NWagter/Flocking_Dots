@@ -8,4 +8,4 @@ This project will contain
 - Obstacle avoidance
 - Player movement order system
 
-<img src="https://github.com/NWagter/Flocking_Dots/blob/main/Gifs/SimpleFormation_01.gif" width="500"/>
+<img align="center" src="https://github.com/NWagter/Flocking_Dots/blob/main/Gifs/SimpleFormation_01.gif" width="500"/>
