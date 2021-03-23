@@ -7,3 +7,5 @@ This project will contain
 - Formational movement
 - Obstacle avoidance
 - Player movement order system
+
+<img src="https://github.com/NWagter/Flocking_Dots/blob/main/Gifs/SimpleFormation_01.gif" width="500"/>
