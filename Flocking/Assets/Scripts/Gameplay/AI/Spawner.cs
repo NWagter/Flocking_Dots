@@ -88,7 +88,15 @@ public class SpawnerSystem : SystemBase
                 Value = sComp.m_spawnLocation
             });
 
-            bcb.AddComponent(leader, new FlockManagerComponent());
+            bcb.AddComponent(leader, new FlockManagerComponent()
+            {
+                cohesionBias = formation.cohesionBias,
+                seperationBias = formation.seperationBias,
+                alignmentBias = formation.alignmentBias,
+                boundsBias = formation.boundsBias,
+                desiredBias = formation.desiredBias
+            });
+
             bcb.AddComponent(leader, new FormationComponent());
             DynamicBuffer<FlockAgentElement> buffer = bcb.AddBuffer<FlockAgentElement>(leader);
             bcb.AddBuffer<NeighborAgentElements>(leader);
