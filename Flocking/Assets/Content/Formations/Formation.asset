@@ -15,4 +15,9 @@ MonoBehaviour:
   _formationName: Test formation
   _formationWidth: 5
   _formationHeight: 5
+  _cohesionBias: 0.05
+  _seperationBias: 1
+  _alignmentBias: 0.9
+  _boundsBias: 0.6
+  _desiredBias: 3
   _unit: {fileID: 11400000, guid: 2b1c4525fd5395e47bdbb05f663ba717, type: 2}
